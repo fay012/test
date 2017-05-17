@@ -25,7 +25,7 @@ class DataBase(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, DB_Settings):
+        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DB_Settings):
             page_name = Page.__name__
             frame = Page(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -176,25 +176,28 @@ class Query(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label0 = tk.Label(self,text='Query Data',font=MID_FONT)
-        label0.grid(row=1, column=0, padx=20, pady=1)
+        label0.grid(row=2, column=0, padx=20, pady=1)
         button0 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
         button0.grid(row=5, column=2, sticky="nsew", pady=40, padx=40)
 
         label1 = tk.Label(self,text='Choose Query Type',font=SMALL_FONT)
-        label1.grid(row=0, column=1, sticky="nsew", pady=1, padx=1)
+        label1.grid(row=0, column=1, sticky="nsew", pady=5, padx=5)
 
         button1 = tk.Button(self, text="Query Whole Table",command=lambda:controller.show_frame('QueryAll'))
-        button1.grid(row=1, column=1, sticky="nsew", pady=1, padx=1)
+        button1.grid(row=1, column=1, sticky="nsew", pady=5, padx=5)
 
-        button1 = tk.Button(self, text="Condition Query",command=lambda:controller.show_frame('QueryCon'))
-        button1.grid(row=2, column=1, sticky="nsew", pady=1, padx=1)
+        button2 = tk.Button(self, text="Condition Query",command=lambda:controller.show_frame('QueryCon'))
+        button2.grid(row=2, column=1, sticky="nsew", pady=5, padx=5)
 
-        #label1 = tk.Label(self, text='Enter Test Type (Table Name)', font=SMALL_FONT)
-        #label1.grid(row=0, column=1, sticky="nsew", pady=1, padx=1)
-        #entry1 = tk.Entry(self, borderwidth=5, width=30)
-        #entry1.grid(row=0, column=2, padx=1, pady=1)
-        #button1 = tk.Button(self, text="Next")
-        #button1.grid(row=0, column=3, sticky="nsew", pady=1, padx=1)
+        button3 = tk.Button(self, text="Query Certain Parameters",command=lambda:controller.show_frame('QueryKey'))
+        button3.grid(row=3, column=1, sticky="nsew", pady=5, padx=5)
+
+        button4 = tk.Button(self, text="Condition Query Certain Parameters", command=lambda: controller.show_frame('QueryKeyCon'))
+        button4.grid(row=4, column=1, sticky="nsew", pady=5, padx=5)
+
+
+
+
 class QueryAll(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -219,7 +222,7 @@ class QueryAll(tk.Frame):
 
     def Fetch_All(self):
         TestType = self.set_TestType()
-        Columns,Results = fecth_all(TestType)
+        Columns,Results = fetch_all(TestType)
         fname = TestType + '.csv'
         file = open(fname, 'w')
         file.write(Columns + '\n')
@@ -280,6 +283,165 @@ class QueryCon(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname +' File'
         messagebox.askquestion('Message', String)
+
+
+class QueryKey(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label0 = tk.Label(self, text='Query Certain Parameters', font=SMALL_FONT)
+        label0.grid(row=0, column=0, sticky="nsew", pady=1, padx=1)
+        label1 = tk.Label(self, text='Enter Test Type (Table Name)', font=SMALL_FONT)
+        label1.grid(row=1, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry1.grid(row=1, column=1, padx=1, pady=1)
+
+        label2 = tk.Label(self, text="Enter Parameters' Name\n(e.g: vdd, temperature)", font=SMALL_FONT)
+        label2.grid(row=2, column=0, sticky="nsew", pady=1, padx=1)
+
+        label3 = tk.Label(self, text="Parameter 1", font=SMALL_FONT)
+        label3.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry3 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry3.grid(row=3, column=1, padx=1, pady=1)
+
+        label4 = tk.Label(self, text="Parameter 2", font=SMALL_FONT)
+        label4.grid(row=4, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry4 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry4.grid(row=4, column=1, padx=1, pady=1)
+
+        label5 = tk.Label(self, text="Parameter 3", font=SMALL_FONT)
+        label5.grid(row=5, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry5 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry5.grid(row=5, column=1, padx=1, pady=1)
+
+        label6 = tk.Label(self, text="Parameter 4", font=SMALL_FONT)
+        label6.grid(row=6, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry6 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry6.grid(row=6, column=1, padx=1, pady=1)
+
+        button1 = tk.Button(self, text="Next",command=self.Fetch_Key)
+        button1.grid(row=7, column=4, sticky="nsew", pady=5, padx=5)
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
+        button2.grid(row=8, column=4, padx=5, pady=5)
+
+    def set_TestType(self):
+        self.TestType = self.entry1.get()
+        self.entry1.delete(0, END)
+        self.entry1.insert(0, self.TestType)
+        # print(self.TestType)
+        return self.TestType
+
+    def set_keys(self, entry):
+        self.keys = entry.get()
+        entry.delete(0, END)
+        entry.insert(0, self.keys)
+        # print(self.TestType)
+        return self.keys
+
+    def Fetch_Key(self):
+        TestType = self.set_TestType()
+        key1 = self.set_keys(self.entry3)
+        key2 = self.set_keys(self.entry4)
+        key3 = self.set_keys(self.entry5)
+        key4 = self.set_keys(self.entry6)
+        Columns, Results = fetch_key(TestType, key1, key2, key3, key4)
+        fname = TestType + '_key_query.csv'
+        file = open(fname, 'w')
+        file.write(Columns + '\n')
+        for row in Results:
+            str_row = str(row).strip('()')
+            # print(str_row)
+            file.write(str_row + '\n')
+        file.close()
+        String = 'Query Finished! Please Check ' + fname + '_key File'
+        messagebox.askquestion('Message', String)
+
+
+class QueryKeyCon(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label0 = tk.Label(self, text='Query Certain Parameters', font=SMALL_FONT)
+        label0.grid(row=0, column=0, sticky="nsew", pady=1, padx=1)
+        label1 = tk.Label(self, text='Enter Test Type (Table Name)', font=SMALL_FONT)
+        label1.grid(row=1, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry1.grid(row=1, column=1, padx=1, pady=1)
+
+        label2 = tk.Label(self, text="Enter Parameters' Name\n(e.g: vdd, temperature)", font=SMALL_FONT)
+        label2.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
+
+        label3 = tk.Label(self, text="Parameter 1", font=SMALL_FONT)
+        label3.grid(row=4, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry3 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry3.grid(row=4, column=1, padx=1, pady=1)
+
+        label4 = tk.Label(self, text="Parameter 2", font=SMALL_FONT)
+        label4.grid(row=5, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry4 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry4.grid(row=5, column=1, padx=1, pady=1)
+
+        label5 = tk.Label(self, text="Parameter 3", font=SMALL_FONT)
+        label5.grid(row=6, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry5 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry5.grid(row=6, column=1, padx=1, pady=1)
+
+        label6 = tk.Label(self, text="Parameter 4", font=SMALL_FONT)
+        label6.grid(row=7, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry6 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry6.grid(row=7, column=1, padx=1, pady=1)
+
+        label7 = tk.Label(self, text="Enter Conditon\n(e.g: vdd = 'HV' and temperature = 27)", font=SMALL_FONT)
+        label7.grid(row=2, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry7 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry7.grid(row=2, column=1, padx=1, pady=1)
+
+        button1 = tk.Button(self, text="Next", command=self.Fetch_Key_Con)
+        button1.grid(row=8, column=4, sticky="nsew", pady=5, padx=5)
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
+        button2.grid(row=9, column=4, padx=5, pady=5)
+
+    def set_TestType(self):
+        self.TestType = self.entry1.get()
+        self.entry1.delete(0,END)
+        self.entry1.insert(0,self.TestType)
+        #print(self.TestType)
+        return self.TestType
+
+
+    def set_conditions(self):
+        self.Conditions = self.entry7.get()
+        self.entry7.delete(0,END)
+        self.entry7.insert(0,self.Conditions)
+        #print(self.TestType)
+        return self.Conditions
+
+    def set_keys(self,entry):
+        self.keys = entry.get()
+        entry.delete(0,END)
+        entry.insert(0,self.keys)
+        #print(self.TestType)
+        return self.keys
+
+    def Fetch_Key_Con(self):
+        TestType = self.set_TestType()
+        Conditions = self.set_conditions()
+        key1 = self.set_keys(self.entry3)
+        key2 = self.set_keys(self.entry4)
+        key3 = self.set_keys(self.entry5)
+        key4 = self.set_keys(self.entry6)
+        Columns, Results = fetch_key_con(TestType, Conditions, key1,key2,key3,key4)
+        fname = TestType + '_key_con_query.csv'
+        file = open(fname, 'w')
+        file.write(Columns + '\n')
+        for row in Results:
+            str_row = str(row).strip('()')
+            # print(str_row)
+            file.write(str_row + '\n')
+        file.close()
+        String = 'Query Finished! Please Check ' + fname + '_key_con File'
+        messagebox.askquestion('Message', String)
+
 
 
 class DB_Settings(tk.Frame):
