@@ -22,5 +22,21 @@ def fecth_all(TestType):
     except Error as e:
         print(e)
 
+def fetch_con(TestType, conditions):
+    try:
+        dbconfig = read_db_config()
+        conn = MySQLConnection(**dbconfig)
+        cursor = conn.cursor()
+        sql0 = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '" + TestType + "';"
+        cursor.execute(sql0)
+        columns = str(cursor.fetchall()).strip('[]')
+        sql = "select * from " + TestType +'\n where ' + conditions + ';'
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        #print(columns,results)
+        return columns,results
+    except Error as e:
+        print(e)
+
 if __name__ == '__main__':
-    fecth_all('current')
+    fetch_con('current',"vdd = 'HV' and temperature = 27")
