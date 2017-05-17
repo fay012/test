@@ -117,5 +117,6 @@ def fetch_key_con(TestType, conditions, *keys):
     except Error as e:
         print(e)
 
+
 if __name__ == '__main__':
     fetch_key_con('current','temperature>27','temperature','vdd','script')

@@ -85,7 +85,10 @@ class CreateTable(tk.Frame):
         button1 = tk.Button(self, text='Next',command=self.ImportFirst)
         button1.grid(row=1, column=4, pady=1, padx=5)
         button2 = tk.Button(self, text='Back',command=lambda:controller.show_frame('ImportData'))
-        button2.grid(row=1, column=6, pady=1, padx=5)
+        button2.grid(row=1, column=5, pady=1, padx=5)
+
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=2, column=2, columnspan=2,sticky="nsew", pady=10, padx=10)
 
     def set_TestType(self):
         self.TestType = self.entry0.get()
@@ -115,6 +118,7 @@ class CreateTable(tk.Frame):
         button0.grid(row=1, column=7,padx=1, pady=1)
         button1 = tk.Button(self.top, text='Import Data', font=SMALL_FONT,command=lambda:self.Import_to_new(self.TestType,self.csv_name))
         button1.grid(row=2, column=3, padx=1, pady=2)
+
 
 
     def load_file(self):
@@ -150,6 +154,9 @@ class AppendData(tk.Frame):
         button3.grid(row=3, column=7, padx=1, pady=8)
         button4 = tk.Button(self, text='Append', font=SMALL_FONT,command=lambda: Merge_Data(self.TestType))
         button4.grid(row=3, column=3, padx=1, pady=2)
+
+        button5 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button5.grid(row=4, column=5, sticky="nsew", pady=1, padx=1)
 
     def load_file(self):
         self.csv_name = askopenfilename(filetypes=(("csv files", "*.csv"), ("All files", "*.*")))
@@ -210,8 +217,11 @@ class QueryAll(tk.Frame):
         self.entry1.grid(row=1, column=1, padx=1, pady=1)
         button1 = tk.Button(self, text="Next",command=self.Fetch_All)
         button1.grid(row=1, column=2, sticky="nsew", pady=1, padx=1)
+
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda:controller.show_frame('Query'))
-        button2.grid(row=3, column=2, padx=1, pady=8)
+        button2.grid(row=3, column=2, padx=1, pady=20)
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=4, column=1, sticky="nsew", pady=1, padx=1)
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -254,6 +264,9 @@ class QueryCon(tk.Frame):
         button1.grid(row=2, column=2, sticky="nsew", pady=1, padx=1)
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda:controller.show_frame('Query'))
         button2.grid(row=3, column=2, padx=1, pady=8)
+
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=4, column=1, sticky="nsew", pady=1, padx=1)
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -322,7 +335,10 @@ class QueryKey(tk.Frame):
         button1 = tk.Button(self, text="Next",command=self.Fetch_Key)
         button1.grid(row=7, column=4, sticky="nsew", pady=5, padx=5)
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
-        button2.grid(row=8, column=4, padx=5, pady=5)
+        button2.grid(row=7, column=5, padx=5, pady=5)
+
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=8, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -401,6 +417,9 @@ class QueryKeyCon(tk.Frame):
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
         button2.grid(row=9, column=4, padx=5, pady=5)
 
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=10, column=1, sticky="nsew", pady=1, padx=1)
+
     def set_TestType(self):
         self.TestType = self.entry1.get()
         self.entry1.delete(0,END)
@@ -441,6 +460,8 @@ class QueryKeyCon(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname + '_key_con File'
         messagebox.askquestion('Message', String)
+
+
 
 
 
@@ -509,13 +530,6 @@ class DB_Settings(tk.Frame):
         f.write('password = ' + self.password + '\n')
         String = 'Data Base Settings Updated!'
         messagebox.askquestion('Message', String)
-
-
-
-
-
-
-
 
 
 app = DataBase()
