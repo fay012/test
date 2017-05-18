@@ -1,4 +1,6 @@
 #http://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter/7557028#7557028
+#http://www.jianshu.com/p/2a931ce70b4b
+
 import mysql.connector
 from  mysql.connector import Error, MySQLConnection
 from python_mysql_dbconfig import read_db_config
@@ -8,6 +10,7 @@ from tkinter.filedialog import *
 from tkinter import messagebox
 from fetch_data import *
 import tkinter as tk
+from tkinter import ttk
 BOLD_FONT = ("Verdana bold", 12)
 LARGE_FONT = ("Verdana", 12)
 MID_FONT = ("Verdana", 10)
@@ -25,7 +28,7 @@ class DataBase(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DB_Settings):
+        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DataManager, Plot, DB_Settings):
             page_name = Page.__name__
             frame = Page(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -52,8 +55,14 @@ class StartPage(tk.Frame):
         button2 = tk.Button(self, text="Query",font = MID_FONT, command=lambda: controller.show_frame('Query'))
         button2.pack(pady=5, padx=5)
 
-        button3 = tk.Button(self, text="Change DataBase Settings", font=MID_FONT, command=lambda: controller.show_frame('DB_Settings'))
+        button3 = tk.Button(self, text="Manage Data", font=MID_FONT, command=lambda: controller.show_frame('DataManager'))
         button3.pack(pady=5, padx=5)
+
+        button4 = tk.Button(self, text="Plot", font=MID_FONT, command=lambda: controller.show_frame('Plot'))
+        button4.pack(pady=5, padx=5)
+
+        button5 = tk.Button(self, text="Change DataBase Settings", font=MID_FONT, command=lambda: controller.show_frame('DB_Settings'))
+        button5.pack(pady=5, padx=5)
 
 
 class ImportData(tk.Frame):
@@ -460,6 +469,50 @@ class QueryKeyCon(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname + '_key_con File'
         messagebox.askquestion('Message', String)
+
+
+class DataManager(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label0 = tk.Label(self, text='Enter The Name of Table', font=SMALL_FONT)
+        label0.grid(row=0, column=1, columnspan=2, pady=1, padx=1)
+
+class Plot(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label0 = tk.Label(self, text='Enter Test Type', font=SMALL_FONT)
+        label0.grid(row=0, column=0, pady=1, padx=1)
+        self.entry0 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry0.grid(row=0, column=1, padx=1, pady=1)
+
+        label1 = tk.Label(self, text="Enter Parameter's Name", font=SMALL_FONT)
+        label1.grid(row=1, column=0, pady=1, padx=1)
+        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry1.grid(row=1, column=1, padx=1, pady=1)
+
+        label1 = tk.Label(self, text="VS", font=SMALL_FONT)
+        label1.grid(row=1, column=2, pady=1, padx=1)
+        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry1.grid(row=1, column=3, padx=1, pady=1)
+
+        label2 = tk.Label(self, text="Enter Conditions", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
+        self.entry2 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry2.grid(row=2, column=1, padx=1, pady=1)
+
+        label2 = tk.Label(self, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=3, column=0, pady=1, padx=1)
+
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('StartPage'))
+        button2.grid(row=6, column=4, padx=1, pady=20)
+        number = tk.StringVar()
+        numChosen = ttk.Combobox(self,width=28,textvariable=number)
+        numChosen['values'] = ('Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot')
+        #numChosen['values'] = ('Mean', 'Median', 'Standard Deviation', '10% Tail', '20% Tail', 'R Factor', 'Failure Rank')
+        numChosen.grid(row=3, column=1)
+
 
 
 
