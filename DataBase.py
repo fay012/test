@@ -11,6 +11,7 @@ from tkinter import messagebox
 from fetch_data import *
 import tkinter as tk
 from tkinter import ttk
+from plot_data import *
 BOLD_FONT = ("Verdana bold", 12)
 LARGE_FONT = ("Verdana", 12)
 MID_FONT = ("Verdana", 10)
@@ -28,7 +29,7 @@ class DataBase(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DataManager, Plot, DB_Settings):
+        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DataManager, PlotChoice, PlotCSV, Plot, DB_Settings):
             page_name = Page.__name__
             frame = Page(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -58,7 +59,7 @@ class StartPage(tk.Frame):
         button3 = tk.Button(self, text="Manage Data", font=MID_FONT, command=lambda: controller.show_frame('DataManager'))
         button3.pack(pady=5, padx=5)
 
-        button4 = tk.Button(self, text="Plot", font=MID_FONT, command=lambda: controller.show_frame('Plot'))
+        button4 = tk.Button(self, text="Plot", font=MID_FONT, command=lambda: controller.show_frame('PlotChoice'))
         button4.pack(pady=5, padx=5)
 
         button5 = tk.Button(self, text="Change DataBase Settings", font=MID_FONT, command=lambda: controller.show_frame('DB_Settings'))
@@ -478,6 +479,22 @@ class DataManager(tk.Frame):
         label0 = tk.Label(self, text='Enter The Name of Table', font=SMALL_FONT)
         label0.grid(row=0, column=1, columnspan=2, pady=1, padx=1)
 
+class PlotChoice(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label0 = tk.Label(self, text='Choose Data Source', font=SMALL_FONT)
+        label0.grid(row=0, column=0, pady=1, padx=1)
+
+        button0 = tk.Button(self, text='Plot Data In A CSV File', font=SMALL_FONT, command=lambda: controller.show_frame('PlotCSV'))
+        button0.grid(row=0, column=0, padx=1, pady=1)
+
+        button1 = tk.Button(self, text='Plot Data From DataBase', font=SMALL_FONT, command=lambda: controller.show_frame('Plot'))
+        button1.grid(row=1, column=0, padx=1, pady=1)
+
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('StartPage'))
+        button2.grid(row=2, column=1, padx=5, pady=5)
+
 class Plot(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -487,31 +504,230 @@ class Plot(tk.Frame):
         self.entry0 = tk.Entry(self, borderwidth=5, width=30)
         self.entry0.grid(row=0, column=1, padx=1, pady=1)
 
-        label1 = tk.Label(self, text="Enter Parameter's Name", font=SMALL_FONT)
-        label1.grid(row=1, column=0, pady=1, padx=1)
-        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
-        self.entry1.grid(row=1, column=1, padx=1, pady=1)
-
-        label1 = tk.Label(self, text="VS", font=SMALL_FONT)
-        label1.grid(row=1, column=2, pady=1, padx=1)
-        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
-        self.entry1.grid(row=1, column=3, padx=1, pady=1)
-
-        label2 = tk.Label(self, text="Enter Conditions", font=SMALL_FONT)
-        label2.grid(row=2, column=0, pady=1, padx=1)
-        self.entry2 = tk.Entry(self, borderwidth=5, width=30)
-        self.entry2.grid(row=2, column=1, padx=1, pady=1)
+        button0 = tk.Button(self, text='Browse', font=SMALL_FONT, command=self.load_file)
+        button0.grid(row=1, column=7, padx=1, pady=1)
 
         label2 = tk.Label(self, text="Choose Plot Type", font=SMALL_FONT)
-        label2.grid(row=3, column=0, pady=1, padx=1)
+        label2.grid(row=2, column=0, pady=1, padx=1)
 
-        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('StartPage'))
-        button2.grid(row=6, column=4, padx=1, pady=20)
         number = tk.StringVar()
-        numChosen = ttk.Combobox(self,width=28,textvariable=number)
-        numChosen['values'] = ('Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot')
-        #numChosen['values'] = ('Mean', 'Median', 'Standard Deviation', '10% Tail', '20% Tail', 'R Factor', 'Failure Rank')
-        numChosen.grid(row=3, column=1)
+        self.numChosen = ttk.Combobox(self, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('PlotChoice'))
+        button2.grid(row=6, column=7, padx=1, pady=20)
+
+        button3 = tk.Button(self, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button3.grid(row=3, column=3, padx=10, pady=10)
+
+    def load_file(self):
+        self.csv_name = askopenfilename(filetypes=(("csv files", "*.csv"), ("All files", "*.*")))
+        # print(self.csv_name)
+        self.entry0.delete(0, END)
+        self.entry0.insert(0, self.csv_name)
+        return self.csv_name
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        # print(PlotType)
+        if PlotNum in ['0', '2', '3']:
+            label0 = tk.Label(self, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self, text='plot', font=SMALL_FONT, command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs.append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs, values, ParName2, ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs, values, ParName2, ParName)
+class PlotCSV(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.csv_name = ' '
+        label0 = tk.Label(self, text='File Path', font=SMALL_FONT)
+        label0.grid(row=1, column=0, pady=1, padx=1)
+        self.entry0 = Entry(self, borderwidth=5, width=30)
+        self.entry0.grid(row=1, column=1, columnspan=6, padx=1, pady=1)
+        button0 = tk.Button(self, text='Browse', font=SMALL_FONT, command=self.load_file)
+        button0.grid(row=1, column=7, padx=1, pady=1)
+
+
+        label2 = tk.Label(self, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+        self.numChosen = ttk.Combobox(self, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('PlotChoice'))
+        button2.grid(row=6, column=7, padx=1, pady=20)
+
+        button3 = tk.Button(self, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button3.grid(row=3, column=3, padx=10, pady=10)
+
+
+    def load_file(self):
+        self.csv_name = askopenfilename(filetypes=(("csv files", "*.csv"), ("All files", "*.*")))
+        #print(self.csv_name)
+        self.entry0.delete(0, END)
+        self.entry0.insert(0, self.csv_name)
+        return self.csv_name
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname,'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        #print(PlotType)
+        if PlotNum in ['0','2','3']:
+            label0 = tk.Label(self, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self, text='plot', font=SMALL_FONT,command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+       # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs .append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+       # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs,values, ParName2,ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs,values, ParName2,ParName)
+
 
 
 
