@@ -1,0 +1,2 @@
+[current]
+primary key=primary key (temperature, vdd, script)

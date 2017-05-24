@@ -1,0 +1,23 @@
+[temperature]
+cmd=temperature float(10,2) not null
+
+[vdd]
+cmd=vdd varchar(8) not null
+
+[script]
+cmd=script varchar(60) not null
+
+[V_1v5(V)]
+cmd=V_1v5_V float(7,4) not null
+
+[V_3v(V)]
+cmd=V_3v_V float(7,4) not null
+
+[I_1v5(A)]
+cmd=I_1v5_A float(7,4) not null
+
+[I_3v(A)]
+cmd=I_3v_A float(7,4) not null
+
+[ ]
+pass
