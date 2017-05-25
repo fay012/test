@@ -22,6 +22,7 @@ def fetch_all(TestType):
         sql = "select * from " + TestType
         cursor.execute(sql)
         results = cursor.fetchall()
+        print(columns)
         #print(columns,results)
         return columns,results
     except Error as e:
@@ -55,6 +56,7 @@ def fetch_key(TestType, *keys):
         conn = MySQLConnection(**dbconfig)
         cursor = conn.cursor()
         columns_temp = []
+        #column_type = ''
         columns =''
         columns_print = ''
         items = str(keys).strip("()").split(',')
@@ -64,6 +66,7 @@ def fetch_key(TestType, *keys):
             #print(sql0)
             cursor.execute(sql0)
             columns_temp = columns_temp + cursor.fetchall()
+        #print(columns_temp)
         for c in columns_temp:
             column = str(c).strip('()')
             columns = columns + column
@@ -78,7 +81,8 @@ def fetch_key(TestType, *keys):
         sql = "select " +  c3 + " from " + TestType + ';'
         cursor.execute(sql)
         results = cursor.fetchall()
-        #print(columns_print,results)
+        #print(columns_print)
+       # print(columns_print,results)
         return columns_print,results
     except Error as e:
         print(e)
@@ -112,11 +116,13 @@ def fetch_key_con(TestType, conditions, *keys):
         sql = "select " + c3 + " from " + TestType + '\n where ' + conditions + ';'
         cursor.execute(sql)
         results = cursor.fetchall()
-        #rint(columns_print,results)
+        #print(columns_print,results)
         return columns_print,results
     except Error as e:
         print(e)
 
 
 if __name__ == '__main__':
-    fetch_key_con('current','temperature>27','temperature','vdd','script')
+    columns,results = fetch_all('current')
+    print(columns.split(','))
+    #fetch_key('current','temperature','vdd','script')

@@ -6,6 +6,7 @@ from  mysql.connector import Error, MySQLConnection
 from python_mysql_dbconfig import read_db_config
 from common_func import *
 from import_data import *
+from sql_func import *
 from tkinter.filedialog import *
 from tkinter import messagebox
 from fetch_data import *
@@ -319,36 +320,68 @@ class QueryKey(tk.Frame):
         self.entry1 = tk.Entry(self, borderwidth=5, width=30)
         self.entry1.grid(row=1, column=1, padx=1, pady=1)
 
-        label2 = tk.Label(self, text="Enter Parameters' Name\n(e.g: vdd, temperature)", font=SMALL_FONT)
-        label2.grid(row=2, column=0, sticky="nsew", pady=1, padx=1)
+        button1 = tk.Button(self, text="Next", command=lambda: self.ParChosen(controller))
+        button1.grid(row=2, column=4, sticky="nsew", pady=5, padx=5)
+        button2 = tk.Button(self, text="Back", command=lambda:controller.show_frame('Query'))
+        button2.grid(row=2, column=5, sticky="nsew", pady=5, padx=5)
+
+
+
+    def ParChosen(self,controller):
+
+        par1 = tk.StringVar()
+        par2 = tk.StringVar()
+        par3 = tk.StringVar()
+        par4 = tk.StringVar()
+
+        TestType = self.set_TestType()
+        names = get_parlist(TestType)
+        self.names = names
+
+
+        label2 = tk.Label(self, text="Choose Parameters' Name", font=SMALL_FONT)
+        label2.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
 
         label3 = tk.Label(self, text="Parameter 1", font=SMALL_FONT)
         label3.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
-        self.entry3 = tk.Entry(self, borderwidth=1, width=30)
+        #self.entry3 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry3 = ttk.Combobox(self, width=28, textvariable=par1)
+        self.entry3['values'] = names
         self.entry3.grid(row=3, column=1, padx=1, pady=1)
 
+
+
         label4 = tk.Label(self, text="Parameter 2", font=SMALL_FONT)
-        label4.grid(row=4, column=0, sticky="nsew", pady=1, padx=1)
-        self.entry4 = tk.Entry(self, borderwidth=1, width=30)
+        label4.grid(row=4, column=0, sticky="nsew", pady=1, padx=2)
+        #self.entry4 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry4 = ttk.Combobox(self,width=28,textvariable=par2)
+        self.entry4['values'] = names
         self.entry4.grid(row=4, column=1, padx=1, pady=1)
 
+
         label5 = tk.Label(self, text="Parameter 3", font=SMALL_FONT)
-        label5.grid(row=5, column=0, sticky="nsew", pady=1, padx=1)
-        self.entry5 = tk.Entry(self, borderwidth=1, width=30)
+        label5.grid(row=5, column=0, sticky="nsew", pady=1, padx=3)
+        #self.entry5 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry5 = ttk.Combobox(self, width=28, textvariable=par3)
+        self.entry5['values'] = names
         self.entry5.grid(row=5, column=1, padx=1, pady=1)
+
 
         label6 = tk.Label(self, text="Parameter 4", font=SMALL_FONT)
         label6.grid(row=6, column=0, sticky="nsew", pady=1, padx=1)
         self.entry6 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry6 = ttk.Combobox(self, width=28, textvariable=par4)
+        self.entry6['values'] = names
         self.entry6.grid(row=6, column=1, padx=1, pady=1)
 
-        button1 = tk.Button(self, text="Next",command=self.Fetch_Key)
-        button1.grid(row=7, column=4, sticky="nsew", pady=5, padx=5)
-        button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
-        button2.grid(row=7, column=5, padx=5, pady=5)
+        button3 = tk.Button(self, text="Next", command=self.Fetch_Key)
+        button3.grid(row=7, column=4, sticky="nsew", pady=5, padx=5)
+        button4 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
+        button4.grid(row=7, column=5, padx=5, pady=5)
 
-        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button3.grid(row=8, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+        button5 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button5.grid(row=8, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -358,10 +391,12 @@ class QueryKey(tk.Frame):
         return self.TestType
 
     def set_keys(self, entry):
-        self.keys = entry.get()
+        key_num = entry.current()
+        self.keys = self.names[key_num]
         entry.delete(0, END)
         entry.insert(0, self.keys)
         # print(self.TestType)
+        #print(self.keys)
         return self.keys
 
     def Fetch_Key(self):
@@ -370,6 +405,7 @@ class QueryKey(tk.Frame):
         key2 = self.set_keys(self.entry4)
         key3 = self.set_keys(self.entry5)
         key4 = self.set_keys(self.entry6)
+        print(key1,key2,key3,key4)
         Columns, Results = fetch_key(TestType, key1, key2, key3, key4)
         fname = TestType + '_key_query.csv'
         file = open(fname, 'w')
