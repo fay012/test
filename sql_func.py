@@ -11,12 +11,12 @@ def get_parlist(TestType):
         sql0 = "select COLUMN_NAME from information_schema.COLUMNS where table_name = '" + TestType + "';"
         cursor.execute(sql0)
         temp = cursor.fetchall()
-        print(temp)
+        #print(temp)
         col = ''
         for c in temp:
             c = str(c).strip('()')
             c = c.strip("',")
-            col = col + ', ' + c
+            col = col + ',' + c
         col = col.strip(',')
         #print(col)
         #print(col,output)

@@ -336,6 +336,8 @@ class QueryKey(tk.Frame):
 
         TestType = self.set_TestType()
         names = get_parlist(TestType)
+        names.insert(len(names),'')
+        print(names)
         self.names = names
 
 
@@ -395,7 +397,7 @@ class QueryKey(tk.Frame):
         self.keys = self.names[key_num]
         entry.delete(0, END)
         entry.insert(0, self.keys)
-        # print(self.TestType)
+        #print(self.TestType)
         #print(self.keys)
         return self.keys
 
@@ -514,6 +516,8 @@ class DataManager(tk.Frame):
         self.controller = controller
         label0 = tk.Label(self, text='Enter The Name of Table', font=SMALL_FONT)
         label0.grid(row=0, column=1, columnspan=2, pady=1, padx=1)
+        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button3.grid(row=10, column=1, sticky="nsew", pady=1, padx=1)
 
 class PlotChoice(tk.Frame):
     def __init__(self, parent, controller):

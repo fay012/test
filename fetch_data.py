@@ -22,7 +22,7 @@ def fetch_all(TestType):
         sql = "select * from " + TestType
         cursor.execute(sql)
         results = cursor.fetchall()
-        print(columns)
+        #print(columns)
         #print(columns,results)
         return columns,results
     except Error as e:
@@ -82,7 +82,7 @@ def fetch_key(TestType, *keys):
         cursor.execute(sql)
         results = cursor.fetchall()
         #print(columns_print)
-       # print(columns_print,results)
+        print(columns_print,results)
         return columns_print,results
     except Error as e:
         print(e)
@@ -123,6 +123,6 @@ def fetch_key_con(TestType, conditions, *keys):
 
 
 if __name__ == '__main__':
-    columns,results = fetch_all('current')
-    print(columns.split(','))
-    #fetch_key('current','temperature','vdd','script')
+    #columns,results = fetch_all('current')
+    #print(columns.split(','))
+    fetch_key('current','temperature','vdd',' ')
