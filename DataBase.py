@@ -30,7 +30,7 @@ class DataBase(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, DataManager, PlotChoice, PlotCSV, Plot, DB_Settings):
+        for Page in (StartPage, ImportData, CreateTable, AppendData, Query, QueryAll, QueryCon, QueryKey, QueryKeyCon, PlotChoice, PlotCSV, Plot, DB_Settings, Outlier):
             page_name = Page.__name__
             frame = Page(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -57,8 +57,8 @@ class StartPage(tk.Frame):
         button2 = tk.Button(self, text="Query",font = MID_FONT, command=lambda: controller.show_frame('Query'))
         button2.pack(pady=5, padx=5)
 
-        button3 = tk.Button(self, text="Manage Data", font=MID_FONT, command=lambda: controller.show_frame('DataManager'))
-        button3.pack(pady=5, padx=5)
+        #button3 = tk.Button(self, text="Manage Data", font=MID_FONT, command=lambda: controller.show_frame('DataManager'))
+        #button3.pack(pady=5, padx=5)
 
         button4 = tk.Button(self, text="Plot", font=MID_FONT, command=lambda: controller.show_frame('PlotChoice'))
         button4.pack(pady=5, padx=5)
@@ -196,7 +196,7 @@ class Query(tk.Frame):
         label0 = tk.Label(self,text='Query Data',font=MID_FONT)
         label0.grid(row=2, column=0, padx=20, pady=1)
         button0 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button0.grid(row=5, column=2, sticky="nsew", pady=40, padx=40)
+        button0.grid(row=6, column=2, sticky="nsew", pady=40, padx=40)
 
         label1 = tk.Label(self,text='Choose Query Type',font=SMALL_FONT)
         label1.grid(row=0, column=1, sticky="nsew", pady=5, padx=5)
@@ -212,6 +212,9 @@ class Query(tk.Frame):
 
         button4 = tk.Button(self, text="Condition Query Certain Parameters", command=lambda: controller.show_frame('QueryKeyCon'))
         button4.grid(row=4, column=1, sticky="nsew", pady=5, padx=5)
+
+        button5 = tk.Button(self, text="Outlier Filter",command=lambda: controller.show_frame('Outlier'))
+        button5.grid(row=5, column=1, sticky="nsew", pady=5, padx=5)
 
 
 
@@ -230,12 +233,13 @@ class QueryAll(tk.Frame):
         button1.grid(row=1, column=2, sticky="nsew", pady=1, padx=1)
 
         button4 = tk.Button(self, text="Plot",command=self.PlotDefault)
-        button4.grid(row=3, column=1, padx=1, pady=20)
+        button4.grid(row=3, column=2, padx=1, pady=20)
 
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda:controller.show_frame('Query'))
-        button2.grid(row=3, column=2, padx=1, pady=20)
+        button2.grid(row=5, column=2, padx=1, pady=20)
         button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button3.grid(row=5, column=1, sticky="nsew", pady=1, padx=1)
+        button3.grid(row=6, column=1, sticky="nsew", pady=1, padx=1)
+
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -362,6 +366,8 @@ class QueryAll(tk.Frame):
             scatter_plot(refs, values, ParName2, ParName)
 
 
+
+
 class QueryCon(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -380,9 +386,12 @@ class QueryCon(tk.Frame):
 
         button1 = tk.Button(self, text="Next", command=self.Fetch_con)
         button1.grid(row=2, column=2, sticky="nsew", pady=1, padx=1)
+
+        button4 = tk.Button(self, text="Plot", command=self.PlotDefault)
+        button4.grid(row=3, column=1, padx=1, pady=20)
+
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda:controller.show_frame('Query'))
         button2.grid(row=3, column=2, padx=1, pady=8)
-
         button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
         button3.grid(row=4, column=1, sticky="nsew", pady=1, padx=1)
 
@@ -414,6 +423,105 @@ class QueryCon(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname +' File'
         messagebox.askquestion('Message', String)
+        return fname
+
+    def PlotDefault(self):
+        self.fname = self.Fetch_con()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label2 = tk.Label(self.top, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+        self.numChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self.top, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button2.grid(row=3, column=3, padx=10, pady=10)
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self.top, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        # print(PlotType)
+        if PlotNum in ['0', '2', '3']:
+            label0 = tk.Label(self.top, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self.top, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs.append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs, values, ParName2, ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs, values, ParName2, ParName)
 
 
 class QueryKey(tk.Frame):
@@ -431,8 +539,6 @@ class QueryKey(tk.Frame):
         button1.grid(row=2, column=4, sticky="nsew", pady=5, padx=5)
         button2 = tk.Button(self, text="Back", command=lambda:controller.show_frame('Query'))
         button2.grid(row=2, column=5, sticky="nsew", pady=5, padx=5)
-
-
 
     def ParChosen(self,controller):
 
@@ -458,8 +564,6 @@ class QueryKey(tk.Frame):
         self.entry3['values'] = names
         self.entry3.grid(row=3, column=1, padx=1, pady=1)
 
-
-
         label4 = tk.Label(self, text="Parameter 2", font=SMALL_FONT)
         label4.grid(row=4, column=0, sticky="nsew", pady=1, padx=2)
         #self.entry4 = tk.Entry(self, borderwidth=1, width=30)
@@ -475,7 +579,6 @@ class QueryKey(tk.Frame):
         self.entry5['values'] = names
         self.entry5.grid(row=5, column=1, padx=1, pady=1)
 
-
         label6 = tk.Label(self, text="Parameter 4", font=SMALL_FONT)
         label6.grid(row=6, column=0, sticky="nsew", pady=1, padx=1)
         self.entry6 = tk.Entry(self, borderwidth=1, width=30)
@@ -485,11 +588,33 @@ class QueryKey(tk.Frame):
 
         button3 = tk.Button(self, text="Next", command=self.Fetch_Key)
         button3.grid(row=7, column=4, sticky="nsew", pady=5, padx=5)
+
+        button6 = tk.Button(self, text="Plot", command=self.PlotDefault)
+        button6.grid(row=8, column=4, padx=1, pady=20)
+        button7 = tk.Button(self, text="Calculator", command=self.calculator)
+        button7.grid(row=9, column=4, padx=1, pady=20)
+
         button4 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
-        button4.grid(row=7, column=5, padx=5, pady=5)
+        button4.grid(row=10, column=5, padx=5, pady=5)
 
         button5 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button5.grid(row=8, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+        button5.grid(row=10, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+
+    def calculator(self):
+        self.fname = self.Fetch_Key()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label1 = tk.Label(self.top, text="Choose Statistic Type", font=SMALL_FONT)
+        label1.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+        self.statChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.statlist = ['Max','Min', 'Mean', 'Median', 'Standard Deviation', 'Percentile', 'Quartile']
+        self.statChosen['values'] = self.statlist
+        self.statChosen.grid(row=2, column=1)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.Calculate)
+        button1.grid(row=2, column=3, padx=1, pady=1)
 
 
     def set_TestType(self):
@@ -526,7 +651,128 @@ class QueryKey(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname + '_key File'
         messagebox.askquestion('Message', String)
+        return fname
 
+    def PlotDefault(self):
+        self.fname = self.Fetch_Key()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label2 = tk.Label(self.top, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+        self.numChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self.top, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button2.grid(row=3, column=3, padx=10, pady=10)
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self.top, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        # print(PlotType)
+        if PlotNum in ['0', '2', '3']:
+            label0 = tk.Label(self.top, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self.top, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            #print(values)
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs.append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs, values, ParName2, ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs, values, ParName2, ParName)
+
+    def Calculate(self):
+        self.ParGet()
+        StatNum = self.statChosen.current()
+        StatName = self.statlist[StatNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                #info = info.strip(',')
+                print(info)
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+        if StatName == 'max':
+            print('max')
 
 class QueryKeyCon(tk.Frame):
     def __init__(self, parent, controller):
@@ -598,10 +844,11 @@ class QueryKeyCon(tk.Frame):
         button3 = tk.Button(self, text="Next", command=self.Fetch_Key_Con)
         button3.grid(row=8, column=4, sticky="nsew", pady=5, padx=5)
         button4 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
-        button4.grid(row=8, column=5, padx=5, pady=5)
+        button4.grid(row=9, column=5, padx=5, pady=5)
 
-        button5 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button5.grid(row=9, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+        button6 = tk.Button(self, text="Plot", command=self.PlotDefault)
+        button6.grid(row=9, column=4, padx=1, pady=20)
+
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -643,16 +890,411 @@ class QueryKeyCon(tk.Frame):
         file.close()
         String = 'Query Finished! Please Check ' + fname + '_key_con File'
         messagebox.askquestion('Message', String)
+        return fname
 
+    def PlotDefault(self):
+        self.fname = self.Fetch_Key_Con()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label2 = tk.Label(self.top, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
 
-class DataManager(tk.Frame):
+        number = tk.StringVar()
+        self.numChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self.top, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button2.grid(row=3, column=3, padx=10, pady=10)
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self.top, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        # print(PlotType)
+        if PlotNum in ['0', '2', '3']:
+            label0 = tk.Label(self.top, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self.top, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs.append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs, values, ParName2, ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs, values, ParName2, ParName)
+
+class Outlier(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label0 = tk.Label(self, text='Enter The Name of Table', font=SMALL_FONT)
-        label0.grid(row=0, column=1, columnspan=2, pady=1, padx=1)
-        button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
-        button3.grid(row=10, column=1, sticky="nsew", pady=1, padx=1)
+        label0 = tk.Label(self, text='Outlier Filer', font=SMALL_FONT)
+        label0.grid(row=0, column=0, sticky="nsew", pady=1, padx=1)
+        label1 = tk.Label(self, text='Enter Test Type (Table Name)', font=SMALL_FONT)
+        label1.grid(row=1, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry1 = tk.Entry(self, borderwidth=5, width=30)
+        self.entry1.grid(row=1, column=1, padx=1, pady=1)
+
+        button1 = tk.Button(self, text="Next", command=lambda: self.ParChosen(controller))
+        button1.grid(row=2, column=4, sticky="nsew", pady=5, padx=5)
+        button2 = tk.Button(self, text="Back", command=lambda:controller.show_frame('Query'))
+        button2.grid(row=2, column=5, sticky="nsew", pady=5, padx=5)
+
+
+
+    def ParChosen(self,controller):
+
+        par1 = tk.StringVar()
+        par2 = tk.StringVar()
+        par3 = tk.StringVar()
+        par4 = tk.StringVar()
+
+        spec1 = tk.StringVar()
+        spec2 = tk.StringVar()
+        spec3 = tk.StringVar()
+        spec4 = tk.StringVar()
+
+        per1 = tk.StringVar()
+        per2 = tk.StringVar()
+        per3 = tk.StringVar()
+        per4 = tk.StringVar()
+
+        TestType = self.set_TestType()
+        names = get_parlist(TestType)
+        names.insert(len(names),'')
+        print(names)
+        self.names = names
+        self.percents = percents = ['10%','20%','30%','50%']
+
+
+        label2 = tk.Label(self, text="Choose Parameters' Name", font=SMALL_FONT)
+        label2.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
+
+        label3 = tk.Label(self, text="Parameter 1", font=SMALL_FONT)
+        label3.grid(row=3, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry3 = ttk.Combobox(self, width=28, textvariable=par1)
+        self.entry3['values'] = names
+        self.entry3.grid(row=3, column=1, padx=3, pady=3)
+        label30 = tk.Label(self, text="Spec", font=SMALL_FONT)
+        label30.grid(row=4, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry30 = tk.Entry(self, width=28, textvariable=spec1)
+        self.entry30.grid(row=4, column=1, padx=3, pady=3)
+        label31 = tk.Label(self, text="Percentage", font=SMALL_FONT)
+        label31.grid(row=5, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry31 = ttk.Combobox(self, width=28, textvariable=per1)
+        self.entry31['values'] = percents
+        self.entry31.grid(row=5, column=1, padx=3, pady=3)
+
+        label4 = tk.Label(self, text="Parameter 2", font=SMALL_FONT)
+        label4.grid(row=6, column=0, sticky="nsew", pady=1, padx=2)
+        #self.entry4 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry4 = ttk.Combobox(self,width=28,textvariable=par2)
+        self.entry4['values'] = names
+        self.entry4.grid(row=6, column=1, padx=1, pady=1)
+        label40 = tk.Label(self, text="Spec", font=SMALL_FONT)
+        label40.grid(row=7, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry40 = tk.Entry(self, width=28, textvariable=spec2)
+        self.entry40.grid(row=7, column=1, padx=3, pady=3)
+        label41 = tk.Label(self, text="Percentage", font=SMALL_FONT)
+        label41.grid(row=8, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry41 = ttk.Combobox(self, width=28, textvariable=per2)
+        self.entry41['values'] = percents
+        self.entry41.grid(row=8, column=1, padx=3, pady=3)
+
+
+        label5 = tk.Label(self, text="Parameter 3", font=SMALL_FONT)
+        label5.grid(row=9, column=0, sticky="nsew", pady=1, padx=3)
+        #self.entry5 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry5 = ttk.Combobox(self, width=28, textvariable=par3)
+        self.entry5['values'] = names
+        self.entry5.grid(row=9, column=1, padx=1, pady=1)
+        label50 = tk.Label(self, text="Spec", font=SMALL_FONT)
+        label50.grid(row=10, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry50 = tk.Entry(self, width=28, textvariable=spec3)
+        self.entry50.grid(row=10, column=1, padx=3, pady=3)
+        label51 = tk.Label(self, text="Percentage", font=SMALL_FONT)
+        label51.grid(row=11, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry51 = ttk.Combobox(self, width=28, textvariable=per3)
+        self.entry51['values'] = percents
+        self.entry51.grid(row=11, column=1, padx=3, pady=3)
+
+
+        label6 = tk.Label(self, text="Parameter 4", font=SMALL_FONT)
+        label6.grid(row=12, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry6 = tk.Entry(self, borderwidth=1, width=30)
+        self.entry6 = ttk.Combobox(self, width=28, textvariable=par4)
+        self.entry6['values'] = names
+        self.entry6.grid(row=12, column=1, padx=1, pady=1)
+        label60 = tk.Label(self, text="Spec", font=SMALL_FONT)
+        label60.grid(row=13, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry60 = tk.Entry(self, width=28, textvariable=spec4)
+        self.entry60.grid(row=13, column=1, padx=3, pady=3)
+        label61 = tk.Label(self, text="Percentage", font=SMALL_FONT)
+        label61.grid(row=14, column=0, sticky="nsew", pady=1, padx=1)
+        self.entry61 = ttk.Combobox(self, width=28, textvariable=per4)
+        self.entry61['values'] = percents
+        self.entry61.grid(row=14, column=1, padx=3, pady=3)
+
+        button3 = tk.Button(self, text="Next", command=self.Fetch_Filter)
+        button3.grid(row=15, column=4, sticky="nsew", pady=5, padx=5)
+
+        button6 = tk.Button(self, text="Plot", command=self.PlotDefault)
+        button6.grid(row=16, column=4, padx=1, pady=20)
+
+        button4 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda: controller.show_frame('Query'))
+        button4.grid(row=17, column=5, padx=5, pady=5)
+
+        button5 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
+        button5.grid(row=18, column=4, columnspan=2, sticky="nsew", pady=1, padx=1)
+
+
+    def set_TestType(self):
+        self.TestType = self.entry1.get()
+        self.entry1.delete(0, END)
+        self.entry1.insert(0, self.TestType)
+        # print(self.TestType)
+        return self.TestType
+
+    def set_keys(self, entry):
+        key_num = entry.current()
+        self.keys = self.names[key_num]
+        entry.delete(0, END)
+        entry.insert(0, self.keys)
+        return self.keys
+
+    def set_Specs(self,entry):
+        self.Specs = entry.get()
+        entry.delete(0, END)
+        entry.insert(0, self.Specs)
+        # print(self.TestType)
+        return self.Specs
+
+    def set_Pers(self,entry):
+        Per_num = entry.current()
+        self.Pers = self.percents[Per_num]
+        entry.delete(0, END)
+        entry.insert(0, self.keys)
+        return self.Pers
+
+    def Fetch_Filter(self):
+        TestType = self.set_TestType()
+        key1 = self.set_keys(self.entry3)
+        key2 = self.set_keys(self.entry4)
+        key3 = self.set_keys(self.entry5)
+        key4 = self.set_keys(self.entry6)
+        keys = []
+        specs = []
+        pers = []
+        if key1 != '':
+            spec1 = self.set_Specs(self.entry30)
+            per1 = self.set_Pers(self.entry31)
+            keys.insert(len(keys),key1)
+            specs.insert(len(specs),spec1)
+            pers.insert(len(pers),per1)
+
+        if key2 != '':
+            spec2 = self.set_Specs(self.entry40)
+            per2 = self.set_Pers(self.entry41)
+            keys.insert(len(keys), key2)
+            specs.insert(len(specs), spec2)
+            pers.insert(len(pers), per2)
+
+        if key3 != '':
+            spec3 = self.set_Specs(self.entry50)
+            per3 = self.set_Pers(self.entry51)
+            keys.insert(len(keys), key3)
+            specs.insert(len(specs), spec3)
+            pers.insert(len(pers), per3)
+
+        if key4 != '':
+            spec4 = self.set_Specs(self.entry60)
+            per4 = self.set_Pers(self.entry61)
+            keys.insert(len(keys), key4)
+            specs.insert(len(specs), spec4)
+            pers.insert(len(pers), per4)
+            #print(keys, specs, pers)
+
+        Columns, Results = fetch_key(TestType, key1, key2, key3, key4)
+        fname = TestType + '_key_query.csv'
+        file = open(fname, 'w')
+        file.write(Columns + '\n')
+        for row in Results:
+            str_row = str(row).strip('()')
+            # print(str_row)
+            file.write(str_row + '\n')
+        file.close()
+        String = 'Query Finished! Please Check ' + fname + '_outlier_filter File'
+        messagebox.askquestion('Message', String)
+        return fname
+
+    def PlotDefault(self):
+        self.fname = self.Fetch_Key()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label2 = tk.Label(self.top, text="Choose Plot Type", font=SMALL_FONT)
+        label2.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+        self.numChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.list = ['Line Plot', 'Histogram', 'Scatter Plot', 'Pareto', 'Boxplot']
+        self.numChosen['values'] = self.list
+        self.numChosen.grid(row=2, column=1)
+
+        label3 = tk.Label(self.top, text='Choose Patameter', font=SMALL_FONT)
+        label3.grid(row=3, column=0, pady=10, padx=10)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.ParGet_Next)
+        button2.grid(row=3, column=3, padx=10, pady=10)
+
+    def ParGet(self):
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        line = fp.readline()
+        names = line.strip().split(',')
+        par = tk.StringVar()
+        self.parChosen = ttk.Combobox(self.top, width=28, textvariable=par)
+        self.parChosen['values'] = (names)
+        self.parChosen.grid(row=3, column=1)
+        self.names = names
+        return self.names
+
+    def ParGet_Next(self):
+        PlotNum = str(self.numChosen.current())
+        # print(PlotType)
+        if PlotNum in ['0', '2', '3']:
+            label0 = tk.Label(self.top, text='Plot VS ', font=SMALL_FONT)
+            label0.grid(row=4, column=0, pady=1, padx=1)
+            par2 = tk.StringVar()
+            self.parChosen2 = ttk.Combobox(self.top, width=28, textvariable=par2)
+            self.parChosen2['values'] = (self.names)
+            self.parChosen2.grid(row=4, column=1)
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotVS)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+        else:
+            button0 = tk.Button(self.top, text='plot', font=SMALL_FONT, command=self.PlotSingle)
+            button0.grid(row=4, column=3, padx=10, pady=10)
+
+    def PlotSingle(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Boxplot'):
+            box_plot(values, ParName)
+        if (PlotName == 'Histogram'):
+            hist_plot(values, ParName)
+
+    def PlotVS(self):
+        PlotNum = self.numChosen.current()
+        PlotName = self.list[PlotNum]
+        ParNum = self.parChosen.current()
+        ParName = self.names[ParNum]
+        ParNum2 = self.parChosen2.current()
+        ParName2 = self.names[ParNum]
+        values = []
+        refs = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                values.append(float(info[ParNum]))
+                refs.append(float(info[ParNum2]))
+            LineNum += 1
+            i += 1
+            # print(values)
+        if (PlotName == 'Line Plot'):
+            line_plot(refs, values, ParName2, ParName)
+        if (PlotName == 'Scatter Plot'):
+            scatter_plot(refs, values, ParName2, ParName)
+
+
+
+
+
 
 class PlotChoice(tk.Frame):
     def __init__(self, parent, controller):
@@ -902,6 +1544,8 @@ class PlotCSV(tk.Frame):
             line_plot(refs,values, ParName2,ParName)
         if (PlotName == 'Scatter Plot'):
             scatter_plot(refs,values, ParName2,ParName)
+
+
 
 
 

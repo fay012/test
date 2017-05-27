@@ -13,17 +13,3 @@
 27.0, 'HV', 'LDOen_Wfm_80211n0_Acw_na_PolarTX_2462_python.csv', 1.546, 0.098, 3.09, 0.1197
 27.0, 'HV', 'LDOen_Wfm_80211n7_Acw_na_PolarTX_2422_python.csv', 1.546, 0.098, 3.09, 0.1147
 27.0, 'HV', 'LDOen_Wfm_80211n7_Acw_na_PolarTX_2462_python.csv', 1.546, 0.098, 3.09, 0.1164
-85.0, 'HV', 'LDOen_Wfm_80211b3_Acw_na_PolarTX_2412_python.csv', 1.546, 0.092, 3.09, 0.35
-85.0, 'HV', 'LDOen_Wfm_80211b3_Acw_na_PolarTX_2437_python.csv', 1.546, 0.092, 3.09, 0.3445
-85.0, 'HV', 'LDOen_Wfm_80211b3_Acw_na_PolarTX_2462_python.csv', 1.546, 0.092, 3.09, 0.3418
-85.0, 'HV', 'LDOen_Wfm_80211b3_Acw_na_PolarTX_2484_python.csv', 1.546, 0.092, 3.09, 0.3407
-85.0, 'HV', 'LDOen_Wfm_80211g0_Acw_na_PolarTX_2412_python.csv', 1.546, 0.092, 3.09, 0.1109
-85.0, 'HV', 'LDOen_Wfm_80211g0_Acw_na_PolarTX_2437_python.csv', 1.546, 0.092, 3.09, 0.1098
-85.0, 'HV', 'LDOen_Wfm_80211g0_Acw_na_PolarTX_2462_python.csv', 1.546, 0.092, 3.09, 0.1098
-85.0, 'HV', 'LDOen_Wfm_80211g7_Acw_na_PolarTX_2412_python.csv', 1.546, 0.092, 3.09, 0.1038
-85.0, 'HV', 'LDOen_Wfm_80211g7_Acw_na_PolarTX_2437_python.csv', 1.546, 0.092, 3.09, 0.1038
-85.0, 'HV', 'LDOen_Wfm_80211g7_Acw_na_PolarTX_2462_python.csv', 1.546, 0.092, 3.09, 0.1054
-85.0, 'HV', 'LDOen_Wfm_80211n0_Acw_na_PolarTX_2422_python.csv', 1.546, 0.092, 3.09, 0.1093
-85.0, 'HV', 'LDOen_Wfm_80211n0_Acw_na_PolarTX_2462_python.csv', 1.546, 0.092, 3.09, 0.1093
-85.0, 'HV', 'LDOen_Wfm_80211n7_Acw_na_PolarTX_2422_python.csv', 1.546, 0.092, 3.09, 0.106
-85.0, 'HV', 'LDOen_Wfm_80211n7_Acw_na_PolarTX_2462_python.csv', 1.546, 0.092, 3.09, 0.1065
