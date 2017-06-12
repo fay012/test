@@ -682,7 +682,7 @@ class QueryKey(tk.Frame):
         names = line.strip().split(',')
         par = tk.StringVar()
         self.parChosen = ttk.Combobox(self.top, width=28, textvariable=par)
-        self.parChosen['values'] = (names)
+        self.parChosen['values'] = names
         self.parChosen.grid(row=3, column=1)
         self.names = names
         return self.names
@@ -767,8 +767,8 @@ class QueryKey(tk.Frame):
             if LineNum != 0:
                 info = line.strip().split(',')
                 #info = info.strip(',')
-                print(info)
-                values.append(float(info[ParNum]))
+
+                values.append(info[ParNum])
             LineNum += 1
             i += 1
         if StatName == 'max':
@@ -1408,7 +1408,8 @@ class Plot(tk.Frame):
         ParNum = self.parChosen.current()
         ParName = self.names[ParNum]
         ParNum2 = self.parChosen2.current()
-        ParName2 = self.names[ParNum]
+        ParName2 = self.names[ParNum2]
+        print(ParName2,ParName)
         values = []
         refs = []
         fname = self.csv_name
@@ -1525,7 +1526,7 @@ class PlotCSV(tk.Frame):
         ParNum = self.parChosen.current()
         ParName = self.names[ParNum]
         ParNum2 = self.parChosen2.current()
-        ParName2 = self.names[ParNum]
+        ParName2 = self.names[ParNum2]
         values = []
         refs = []
         fname = self.csv_name
