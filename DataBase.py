@@ -1568,7 +1568,7 @@ class DB_Settings(tk.Frame):
         label1 = tk.Label(self, text='database', font=SMALL_FONT)
         label1.grid(row=2, column=1, columnspan=2, pady=1, padx=40)
         self.e1_var = StringVar()
-        self.e1_var.set('test')
+        self.e1_var.set('yodac0_rx_bench')
         self.entry1 = tk.Entry(self, textvariable=self.e1_var, borderwidth=2, width=25)
         self.entry1.grid(row=3, column=1, columnspan=2, pady=1, padx=40)
 

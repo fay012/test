@@ -1,5 +1,4 @@
-DROP TABLE IF EXISTS `temp`;
-create table temp(
+create table gain(
     temperature varchar(8) not null,
     vdd varchar(8) not null,
     script varchar(60) not null,
@@ -10,8 +9,8 @@ create table temp(
     primary key (temperature, vdd, boardname,freq_MHz)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-load data local infile 'C:/Users/jianxu/PycharmProjects/sqltest/C09/C09_2484MHz_gain_sweep_0612_142301.csv'
-into table temp
+load data local infile 'C:/Users/jianxu/PycharmProjects/sqltest/C09/gain/room/hv/C09_2412MHz_gain_sweep_0612_134807.csv'
+into table gain
 fields terminated by ','
 lines terminated by '\r\n'
 ignore 1 rows;

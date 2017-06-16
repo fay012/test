@@ -1,2 +1,8 @@
 [current]
 primary key=primary key (temperature, vdd, script)
+
+[calibration]
+primary key=primary key (temperature, vdd, boardname,freq_center_MHz)
+
+[gain_rt_hv]
+primary key=primary key (temperature, vdd, boardname,script)
