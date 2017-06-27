@@ -13,6 +13,7 @@ from fetch_data import *
 import tkinter as tk
 from tkinter import ttk
 from plot_data import *
+from calculator import *
 BOLD_FONT = ("Verdana bold", 12)
 LARGE_FONT = ("Verdana", 12)
 MID_FONT = ("Verdana", 10)
@@ -234,12 +235,72 @@ class QueryAll(tk.Frame):
 
         button4 = tk.Button(self, text="Plot",command=self.PlotDefault)
         button4.grid(row=3, column=2, padx=1, pady=20)
+        button7 = tk.Button(self, text="Calculator", command=self.calculator)
+        button7.grid(row=4, column=2, padx=1, pady=20)
 
         button2 = tk.Button(self, text='Back', font=SMALL_FONT, command=lambda:controller.show_frame('Query'))
         button2.grid(row=5, column=2, padx=1, pady=20)
         button3 = tk.Button(self, text="Back to Main", command=lambda: controller.show_frame('StartPage'))
         button3.grid(row=6, column=1, sticky="nsew", pady=1, padx=1)
 
+
+    def calculator(self):
+        self.fname = self.Fetch_All()
+        self.csv_name = self.fname
+        self.top = Toplevel(self)
+        label1 = tk.Label(self.top, text="Choose Statistic Type", font=SMALL_FONT)
+        label1.grid(row=2, column=0, pady=1, padx=1)
+
+        number = tk.StringVar()
+
+
+        self.statChosen = ttk.Combobox(self.top, width=28, textvariable=number)
+        self.statlist = ['Max','Min', 'Mean', 'Median', 'Standard Deviation', 'Quartile']
+        self.statChosen['values'] = self.statlist
+        self.statChosen.grid(row=2, column=1)
+
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command = self.ParGet)
+        button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command = self.Calculate)
+        button2.grid(row=3, column=3, padx=1, pady=1)
+
+    def Calculate(self):
+        StatNum = self.statChosen.current()
+        StatName = self.statlist[StatNum]
+        ParNum = self.parChosen.current()
+        print('parnum is', ParNum)
+        ParName = self.names[ParNum]
+        values = []
+        fname = self.csv_name
+        fp = open(fname, 'r')
+        i = 0
+        LineNum = 0
+        for line in fp.readlines():
+            if LineNum != 0:
+                info = line.strip().split(',')
+                # info = info.strip(',')
+                # print('info is', info)
+                # print(info[ParNum])
+                values.append(float(info[ParNum]))
+            LineNum += 1
+        # print(values)
+        if StatName == 'Max':
+            result = Max(values)
+        elif StatName == 'Min':
+            result = Min(values)
+        elif StatName == 'Mean':
+            result = mean(values)
+        elif StatName == 'Standard Deviation':
+            result = std(values)
+        elif StatName == 'Quartile':
+            result = []
+            result = quartile(values)
+
+        print(result)
+
+        String = '{0} is {1}!'.format(StatName, result)
+        messagebox.askquestion('Message', String)
 
     def set_TestType(self):
         self.TestType = self.entry1.get()
@@ -608,13 +669,20 @@ class QueryKey(tk.Frame):
         label1.grid(row=2, column=0, pady=1, padx=1)
 
         number = tk.StringVar()
+
+
         self.statChosen = ttk.Combobox(self.top, width=28, textvariable=number)
-        self.statlist = ['Max','Min', 'Mean', 'Median', 'Standard Deviation', 'Percentile', 'Quartile']
+        self.statlist = ['Max','Min', 'Mean', 'Median', 'Standard Deviation', 'Quartile']
         self.statChosen['values'] = self.statlist
         self.statChosen.grid(row=2, column=1)
 
-        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command=self.Calculate)
+        button1 = tk.Button(self.top, text='next', font=SMALL_FONT, command = self.ParGet)
         button1.grid(row=2, column=3, padx=1, pady=1)
+
+        button2 = tk.Button(self.top, text='next', font=SMALL_FONT, command = self.Calculate)
+        button2.grid(row=3, column=3, padx=1, pady=1)
+
+        #self.ParGet()
 
 
     def set_TestType(self):
@@ -708,6 +776,7 @@ class QueryKey(tk.Frame):
         PlotName = self.list[PlotNum]
         ParNum = self.parChosen.current()
         ParName = self.names[ParNum]
+        #print('parnum is', ParNum)
         values = []
         fname = self.csv_name
         fp = open(fname, 'r')
@@ -717,10 +786,11 @@ class QueryKey(tk.Frame):
             if LineNum != 0:
                 info = line.strip().split(',')
                 values.append(float(info[ParNum]))
+                #print(info)
             #print(values)
             LineNum += 1
             i += 1
-            # print(values)
+        #print(values)
         if (PlotName == 'Boxplot'):
             box_plot(values, ParName)
         if (PlotName == 'Histogram'):
@@ -746,17 +816,16 @@ class QueryKey(tk.Frame):
                 refs.append(float(info[ParNum2]))
             LineNum += 1
             i += 1
-            # print(values)
         if (PlotName == 'Line Plot'):
             line_plot(refs, values, ParName2, ParName)
         if (PlotName == 'Scatter Plot'):
             scatter_plot(refs, values, ParName2, ParName)
 
     def Calculate(self):
-        self.ParGet()
         StatNum = self.statChosen.current()
         StatName = self.statlist[StatNum]
         ParNum = self.parChosen.current()
+        print('parnum is', ParNum)
         ParName = self.names[ParNum]
         values = []
         fname = self.csv_name
@@ -767,12 +836,32 @@ class QueryKey(tk.Frame):
             if LineNum != 0:
                 info = line.strip().split(',')
                 #info = info.strip(',')
-
-                values.append(info[ParNum])
+                #print('info is', info)
+                #print(info[ParNum])
+                values.append(float(info[ParNum]))
             LineNum += 1
-            i += 1
-        if StatName == 'max':
-            print('max')
+        #print(values)
+        if StatName == 'Max':
+           result = Max(values)
+        elif StatName == 'Min':
+           result = Min(values)
+        elif StatName == 'Mean':
+           result = mean(values)
+        elif StatName == 'Standard Deviation':
+            result = std(values)
+        elif StatName == 'Quartile':
+            result = []
+            result = quartile(values)
+
+
+        print(result)
+
+
+        String = '{0} is {1}!'.format(StatName,result)
+        messagebox.askquestion('Message', String)
+
+
+
 
 class QueryKeyCon(tk.Frame):
     def __init__(self, parent, controller):
@@ -1545,12 +1634,6 @@ class PlotCSV(tk.Frame):
             line_plot(refs,values, ParName2,ParName)
         if (PlotName == 'Scatter Plot'):
             scatter_plot(refs,values, ParName2,ParName)
-
-
-
-
-
-
 
 
 

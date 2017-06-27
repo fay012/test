@@ -1,6 +1,6 @@
 [temperature]
-#cmd=temperature float(10,2) not null
-cmd=temperature varchar(8) not null
+cmd=temperature float(10,2) not null
+#cmd=temperature varchar(8) not null
 
 [vdd]
 cmd=vdd varchar(8) not null

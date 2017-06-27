@@ -1,2 +1,2 @@
-insert ignore into gain_rt_hv
+insert ignore into current
 select * from temp

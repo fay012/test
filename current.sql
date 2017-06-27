@@ -9,7 +9,7 @@ create table current(
     primary key (temperature, vdd, script)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-load data local infile 'C:/Users/jianxu/Desktop/current_0822_193338.csv'
+load data local infile 'C:/datatool/current_0822_193338.csv'
 into table current
 fields terminated by ','
 lines terminated by '\r\n'
