@@ -1,5 +1,5 @@
 create table calibration(
-    temperature varchar(8) not null,
+    temperature float(10,2) not null,
     vdd varchar(8) not null,
     script varchar(60) not null,
     boardname varchar(60) not null,
@@ -30,7 +30,7 @@ create table calibration(
     primary key (temperature, vdd, boardname,freq_center_MHz)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-load data local infile 'C:/Users/jianxu/PycharmProjects/sqltest/C09/calibration/C09_ta_lnacal_rt_0607_190238.csv'
+load data local infile 'C:/datatool/C09_Deg_ta_lnacal_0621_074005.csv'
 into table calibration
 fields terminated by ','
 lines terminated by '\r\n'
